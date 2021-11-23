@@ -7,18 +7,8 @@ namespace DispatchChallenge
         public void OnReceivedMessage (object sender, IMessage message)
         {
             // add required logic
-            switch (message.Code)
-            {
-                case String "Init":
-                    favoriteTask = "Write code";
-                    break;
-                case nameof(Manager):
-                    favoriteTask = "Create meetings";
-                    break;
-                default:
-                    favoriteTask = "Listen to music";
-                    break;
-            }
+            DefaultAction(message);
+            Console.WriteLine($"You have reached {sender} - {message.Code} ");
         }
 
         public virtual void DefaultAction(IMessage message)

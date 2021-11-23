@@ -1,4 +1,6 @@
-﻿namespace DispatchChallenge.Dispatchers
+﻿using System;
+
+namespace DispatchChallenge.Dispatchers
 {
     [Dispatch(typeof(TestDataReceiverMock))]
     public class DispatcherB : DispatcherBase
@@ -12,6 +14,7 @@
         public override void DefaultAction(IMessage message)
         {
             // override for action that will be called if message code is not matched with any existing handler method
+            Console.Write("This is B");
         }
 
     }

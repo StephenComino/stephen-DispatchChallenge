@@ -69,30 +69,30 @@ namespace DispatchChallenge
 
         private void SetUpLogic()
         {
-            // Add required logic that will set up dispatchers based on attributes
-            // dispatcher should only register to events of relevant listener as specificed in the attribute
+            
             DispatcherA dipA = new DispatcherA();
-            var testDataReceiver = Assembly.GetExecutingAssembly().GetTypes().Single(q => q.Name == "TestDataReceiverMock");
-            // Dispatcher register to received function
+            
+            var testDataReceivers = Assembly.GetExecutingAssembly().GetTypes().Where(q => q.Name == "TestDataReceiverMock");
             var dispatchers = Assembly.GetExecutingAssembly().GetTypes()
                 .Where(t => t.GetCustomAttribute(typeof(DispatchAttribute)) != null);
-            // and one of ways to get individual attribute (not the only one!)
+
+
             foreach (var t in dispatchers)
             {
-                Console.WriteLine(t.Name);
-                var methods = t.GetRuntimeMethods();
+                var args = t.GetRuntimeMethod("OnReceivedMessage", new[] {typeof(DispatcherBase)}) ?? dipA.GetType().GetMethod("OnReceivedMessage");
 
-                var args = t.GetRuntimeMethod("OnReceivedMessage", new[] {typeof(DispatcherBase)}) ??
-                           dipA.GetType().GetMethod("OnReceivedMessage");
-
-                var received = testDataReceiver.GetRuntimeEvent("Received");
-                Delegate handler =
-                    Delegate.CreateDelegate(received.EventHandlerType,
-                        null,
-                        args);
-                foreach (var message in Instance._receivers)
+                foreach (var rec in testDataReceivers)
                 {
-                    received.AddEventHandler(message, handler);
+                    var received = rec.GetRuntimeEvent("Received");
+                    Delegate handler =
+                        Delegate.CreateDelegate(received.EventHandlerType,
+                            Activator.CreateInstance(t),
+                            args);
+
+                    foreach (var message in Instance._receivers)
+                    {
+                        received.AddEventHandler(message, handler);
+                    }
                 }
             }
         }
